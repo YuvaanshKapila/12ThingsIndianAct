@@ -37,17 +37,15 @@ var DATA=[
 {y:"1985",t:"Repeal, But the Scars Remain",txt:"In 1985, Bill C-31 removed the discriminatory liquor provisions from the Indian Act after more than a century. Band councils were given authority to create their own rules about alcohol on their reserves. However, repealing the law did not undo the long-term effects. The stereotypes, the trauma from residential schools, and the social and family impacts that developed over decades continue to influence communities today. Many Indigenous individuals and communities are working toward healing, but the legacy of these policies still shapes public perceptions."},
 {y:"Kahoot Quiz",t:"Test Your Knowledge",txt:"Scan the QR code to take the interactive quiz!",qr:1}
 ];
-var scene,cam,rend,yaw=0,pitch=0,lock=0,keys={},shown=[0,0,0,0,0,0,0],raycaster,mouse,artifacts=[],started=0;
+var scene,cam,rend,yaw=0,pitch=0,lock=0,keys={},shown=[0,0,0,0,0,0,0],raycaster,mouse,artifacts=[],started=0,curDec=0;
 var decisions={
-0:{z:[8,12],title:"1884 Criminalization Begins",desc:"You are a federal official in 1884. Reports claim alcohol is causing disorder in Indigenous communities. What policy do you implement?",choices:["Ban alcohol completely for Indigenous people","Regulate alcohol equally under the same laws as all Canadians","Invest in economic support and community partnership instead of prohibition"]},
-1:{z:[0,4],title:"1914 World War I",desc:"Indigenous soldiers have returned from war. They served alongside non Indigenous soldiers. What policy do you enforce?",choices:["Reinstate prohibition immediately","Grant veterans equal access to licensed establishments","Allow access only with special permits"]},
-2:{z:[-8,-4],title:"1939 World War II",desc:"Once again Indigenous soldiers return from war. The same question arises.",choices:["Maintain exclusion policies","Fully integrate Indigenous veterans into Canadian veteran systems","Keep prohibition but create veteran exceptions"]},
-3:{z:[-16,-12],title:"1951 Law Gets Stricter",desc:"The Special Committee reviewed the Indian Act. Public concern about alcohol remains. What do you do?",choices:["Make possession illegal everywhere, on and off reserve (What actually happened)","Decriminalize possession and focus on health based approaches","Keep current laws but add more treatment programs"]},
-4:{z:[-24,-20],title:"1960 Tommy Douglas Moment",desc:"A provincial leader argues Canada must stop treating Indigenous people as second class citizens. How do you respond?",choices:["Maintain federal control and prohibition","Begin removing discriminatory provisions","Allow provinces to decide individually"]},
-5:{z:[-32,-28],title:"1960s to 80s Generational Trauma",desc:"Evidence shows trauma from residential schools and prohibition policies. What approach do you take?",choices:["Ignore the findings and maintain status quo","Fund community led healing programs","Increase policing instead of support"]},
-6:{z:[-40,-36],title:"1985 Repeal",desc:"The discriminatory provisions are repealed. What happens next?",choices:["Leave communities to manage consequences alone","Support self governance and healing initiatives","Repeal the law but keep federal oversight"]}};
-
-var curDec=0;
+0:{title:"1884 Criminalization Begins",desc:"You are a federal official in 1884. Reports claim alcohol is causing disorder in Indigenous communities. What policy do you implement?",choices:["Ban alcohol completely for Indigenous people","Regulate alcohol equally under the same laws as all Canadians","Invest in economic support and community partnership instead of prohibition"]},
+1:{title:"1914 World War I",desc:"Indigenous soldiers have returned from war. They served alongside non Indigenous soldiers. What policy do you enforce?",choices:["Reinstate prohibition immediately","Grant veterans equal access to licensed establishments","Allow access only with special permits"]},
+2:{title:"1939 World War II",desc:"Once again Indigenous soldiers return from war. The same question arises.",choices:["Maintain exclusion policies","Fully integrate Indigenous veterans into Canadian veteran systems","Keep prohibition but create veteran exceptions"]},
+3:{title:"1951 Law Gets Stricter",desc:"The Special Committee reviewed the Indian Act. Public concern about alcohol remains. What do you do?",choices:["Make possession illegal everywhere, on and off reserve (What actually happened)","Decriminalize possession and focus on health based approaches","Keep current laws but add more treatment programs"]},
+4:{title:"1960 Tommy Douglas Moment",desc:"A provincial leader argues Canada must stop treating Indigenous people as second class citizens. How do you respond?",choices:["Maintain federal control and prohibition","Begin removing discriminatory provisions","Allow provinces to decide individually"]},
+5:{title:"1960s to 80s Generational Trauma",desc:"Evidence shows trauma from residential schools and prohibition policies. What approach do you take?",choices:["Ignore the findings and maintain status quo","Fund community led healing programs","Increase policing instead of support"]},
+6:{title:"1985 Repeal",desc:"The discriminatory provisions are repealed. What happens next?",choices:["Leave communities to manage consequences alone","Support self governance and healing initiatives","Repeal the law but keep federal oversight"]}};
 function showDecision(decIdx){
 curDec=decIdx;
 var d=decisions[decIdx];
@@ -111,26 +109,13 @@ raycaster=new THREE.Raycaster();
 mouse=new THREE.Vector2();
 
 var floor=new THREE.Mesh(new THREE.PlaneGeometry(100,100),new THREE.MeshStandardMaterial({color:0x1a1a1a}));
-floor.rotation.x=-Math.PI/2;
-scene.add(floor);
-
-var mat=new THREE.MeshStandardMaterial({color:0x2a2a2a});
-var w1=new THREE.Mesh(new THREE.PlaneGeometry(100,8),mat);
-w1.position.set(-12,4,-10);w1.rotation.y=Math.PI/2;scene.add(w1);
-var w2=new THREE.Mesh(new THREE.PlaneGeometry(100,8),mat);
-w2.position.set(4,4,-10);w2.rotation.y=-Math.PI/2;scene.add(w2);
-var w3=new THREE.Mesh(new THREE.PlaneGeometry(16,8),mat);
-w3.position.set(-4,4,-60);scene.add(w3);
-var w4=new THREE.Mesh(new THREE.PlaneGeometry(16,8),mat);
-w4.position.set(-4,4,15);w4.rotation.y=Math.PI;scene.add(w4);
-var roof=new THREE.Mesh(new THREE.PlaneGeometry(16,100),mat);
+floor.rotation.x=-Math.PI/2;scene.add(floor);
+var wmat=new THREE.MeshStandardMaterial({color:0x2a2a2a});
+[[[-12,4,-10,Math.PI/2],[4,4,-10,-Math.PI/2],[-4,4,-60,0],[-4,4,15,Math.PI]]].forEach(w=>{var wall=new THREE.Mesh(new THREE.PlaneGeometry(100,8),wmat);wall.position.set(w[0],w[1],w[2]);wall.rotation.y=w[3];scene.add(wall)});
+var roof=new THREE.Mesh(new THREE.PlaneGeometry(16,100),wmat);
 roof.rotation.x=Math.PI/2;roof.position.set(-4,8,-10);scene.add(roof);
-
 scene.add(new THREE.AmbientLight(0xffffff,3));
-var lt=new THREE.DirectionalLight(0xffffff,2);
-lt.position.set(0,10,10);scene.add(lt);
-var lt2=new THREE.DirectionalLight(0xffffff,2);
-lt2.position.set(0,10,-30);scene.add(lt2);
+[[0,10,10],[0,10,-30]].forEach(l=>{var lt=new THREE.DirectionalLight(0xffffff,2);lt.position.set(l[0],l[1],l[2]);scene.add(lt)});
 
 for(var i=0;i<8;i++){
 var z=10-i*8;
@@ -167,38 +152,18 @@ pic.position.set(3.92,3,8-idx*8);pic.rotation.y=-Math.PI/2;scene.add(pic);
 });
 var capPanel=new THREE.Mesh(new THREE.PlaneGeometry(2,0.4),new THREE.MeshStandardMaterial({color:0x1a1414}));
 capPanel.position.set(3.95,1.8,8-idx*8);capPanel.rotation.y=-Math.PI/2;scene.add(capPanel);
-var capCv=document.createElement('canvas');
-capCv.width=512;capCv.height=128;
-var capCtx=capCv.getContext('2d');
-capCtx.fillStyle='#1a1414';
-capCtx.fillRect(0,0,512,128);
-capCtx.fillStyle='#c4a86b';
-capCtx.font='18px "Source Sans 3"';
-capCtx.textAlign='center';
+var capCv=document.createElement('canvas'),capCtx;
+capCv.width=512;capCv.height=128;capCtx=capCv.getContext('2d');
+capCtx.fillStyle='#1a1414';capCtx.fillRect(0,0,512,128);capCtx.fillStyle='#c4a86b';capCtx.font='18px "Source Sans 3"';capCtx.textAlign='center';
 var words=photoCaptions[idx].split(' '),line='',yy=35;
-for(var w=0;w<words.length;w++){
-var test=line+words[w]+' ';
-if(capCtx.measureText(test).width>480&&w>0){
-capCtx.fillText(line,256,yy);
-line=words[w]+' ';
-yy+=22;
-}else{
-line=test;
-}
-}
+words.forEach(w=>{var test=line+w+' ';if(capCtx.measureText(test).width>480&&line){capCtx.fillText(line,256,yy);line=w+' ';yy+=22}else line=test});
 capCtx.fillText(line,256,yy);
 var capTex=new THREE.Mesh(new THREE.PlaneGeometry(1.98,0.38),new THREE.MeshStandardMaterial({map:new THREE.CanvasTexture(capCv)}));
 capTex.position.set(3.92,1.8,8-idx*8);capTex.rotation.y=-Math.PI/2;scene.add(capTex);
 })(i);
 }
 
-mkArt(-8,0.8,10,0,0x8B0000);
-mkArt(-8,0.8,2,1,0xd4a843);
-mkArt(-8,0.8,-6,2,0xcc2222);
-mkArt(-8,0.8,-14,3,0x5a3a2a);
-mkArt(-8,0.8,-22,4,0x7a7a3a);
-mkArt(-8,0.8,-30,5,0x8a6a4a);
-mkArt(-8,0.8,-38,6,0x8b4513);
+[[0,0x8B0000],[1,0xd4a843],[2,0xcc2222],[3,0x5a3a2a],[4,0x7a7a3a],[5,0x8a6a4a],[6,0x8b4513]].forEach((a,i)=>mkArt(-8,0.8,10-i*8,a[0],a[1]));
 
 run();
 }
@@ -250,115 +215,69 @@ var ped=new THREE.Mesh(new THREE.CylinderGeometry(0.4,0.5,0.8,8),new THREE.MeshS
 ped.position.set(x,0.4,z);scene.add(ped);
 var g=new THREE.Group();
 if(typ==0){
-var b=new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.15,0.5,12),new THREE.MeshStandardMaterial({color:0x2a4a2a,transparent:1,opacity:0.7,metalness:0.3}));
+var b=new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.15,0.5,12),new THREE.MeshStandardMaterial({color:0x2a4a2a,transparent:1,opacity:0.7}));
 b.position.y=0.25;g.add(b);
-var n=new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.08,0.2,12),new THREE.MeshStandardMaterial({color:0x2a4a2a,transparent:1,opacity:0.7,metalness:0.3}));
+var n=new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.08,0.2,12),new THREE.MeshStandardMaterial({color:0x2a4a2a,transparent:1,opacity:0.7}));
 n.position.y=0.6;g.add(n);
 }else if(typ==1){
-var rb=new THREE.Mesh(new THREE.PlaneGeometry(0.1,0.4),new THREE.MeshStandardMaterial({color:0x8a2a2a}));
-rb.position.y=0.4;g.add(rb);
-var m=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.2,0.04,32),new THREE.MeshStandardMaterial({color:col,metalness:0.95}));
+var m=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.2,0.04,16),new THREE.MeshStandardMaterial({color:col,metalness:0.9}));
 m.rotation.x=Math.PI/2;m.position.y=0.15;g.add(m);
-var st=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.08,0.05,5),new THREE.MeshStandardMaterial({color:0xffffff,metalness:0.9}));
-st.rotation.x=Math.PI/2;st.position.y=0.18;g.add(st);
 }else if(typ==2){
 for(var i=0;i<5;i++){
 var pt=new THREE.Mesh(new THREE.SphereGeometry(0.15,12,12),new THREE.MeshStandardMaterial({color:0xcc2222}));
-pt.scale.set(1,0.3,1);
-var a=i*(Math.PI*2/5);
-pt.position.x=Math.cos(a)*0.12;pt.position.z=Math.sin(a)*0.12;
-g.add(pt);
+pt.scale.set(1,0.3,1);pt.position.set(Math.cos(i*Math.PI*2/5)*0.12,0,Math.sin(i*Math.PI*2/5)*0.12);g.add(pt);
 }
 var c=new THREE.Mesh(new THREE.SphereGeometry(0.08,12,12),new THREE.MeshStandardMaterial({color:0x1a1a1a}));
 g.add(c);
-var stm=new THREE.Mesh(new THREE.CylinderGeometry(0.02,0.02,0.4,8),new THREE.MeshStandardMaterial({color:0x2a4a2a}));
-stm.position.y=-0.2;g.add(stm);
 }else if(typ==3){
 var h=new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.12,0.35,12),new THREE.MeshStandardMaterial({color:col}));
 h.rotation.z=Math.PI/2;h.position.set(0.15,0.15,0);g.add(h);
 var hnd=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,0.45,8),new THREE.MeshStandardMaterial({color:0x4a2a1a}));
 hnd.rotation.z=-Math.PI/4;hnd.position.set(-0.15,-0.05,0);g.add(hnd);
-var blk=new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.18,0.08,16),new THREE.MeshStandardMaterial({color:col}));
-blk.position.y=-0.3;g.add(blk);
 }else if(typ==4){
-var bs=new THREE.Mesh(new THREE.CylinderGeometry(0.15,0.2,0.05,12),new THREE.MeshStandardMaterial({color:col,metalness:0.7}));
-bs.position.y=-0.2;g.add(bs);
 var p=new THREE.Mesh(new THREE.CylinderGeometry(0.025,0.025,0.7,12),new THREE.MeshStandardMaterial({color:col,metalness:0.8}));
 p.position.y=0.15;g.add(p);
 var br=new THREE.Mesh(new THREE.BoxGeometry(0.7,0.025,0.025),new THREE.MeshStandardMaterial({color:col,metalness:0.8}));
 br.position.y=0.5;g.add(br);
-var pn1=new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.08,0.08,16),new THREE.MeshStandardMaterial({color:col,metalness:0.7}));
-pn1.position.set(-0.3,0.4,0);g.add(pn1);
-var pn2=pn1.clone();pn2.position.x=0.3;g.add(pn2);
 }else if(typ==5){
-var mat=new THREE.MeshStandardMaterial({color:col});
-var bd=new THREE.Mesh(new THREE.SphereGeometry(0.15,12,12),mat);
+var bd=new THREE.Mesh(new THREE.SphereGeometry(0.15,12,12),new THREE.MeshStandardMaterial({color:col}));
 bd.scale.set(1,1.2,0.8);g.add(bd);
-var hd=new THREE.Mesh(new THREE.SphereGeometry(0.12,12,12),mat);
+var hd=new THREE.Mesh(new THREE.SphereGeometry(0.12,12,12),new THREE.MeshStandardMaterial({color:col}));
 hd.position.y=0.22;g.add(hd);
-var e1=new THREE.Mesh(new THREE.SphereGeometry(0.05,8,8),mat);
-e1.position.set(-0.08,0.3,0);g.add(e1);
-var e2=e1.clone();e2.position.x=0.08;g.add(e2);
-var a1=new THREE.Mesh(new THREE.SphereGeometry(0.06,8,8),mat);
-a1.scale.set(0.6,1.2,0.6);a1.position.set(-0.15,0.05,0);g.add(a1);
-var a2=a1.clone();a2.position.x=0.15;g.add(a2);
-var l1=new THREE.Mesh(new THREE.SphereGeometry(0.06,8,8),mat);
-l1.scale.set(0.7,1,0.7);l1.position.set(-0.08,-0.18,0);g.add(l1);
-var l2=l1.clone();l2.position.x=0.08;g.add(l2);
 }else if(typ==6){
 var cv=new THREE.Mesh(new THREE.BoxGeometry(0.35,0.45,0.05),new THREE.MeshStandardMaterial({color:col}));
 g.add(cv);
 var pg=new THREE.Mesh(new THREE.BoxGeometry(0.33,0.43,0.04),new THREE.MeshStandardMaterial({color:0xf5f5dc}));
 pg.position.z=0.02;g.add(pg);
-var sp=new THREE.Mesh(new THREE.BoxGeometry(0.06,0.45,0.05),new THREE.MeshStandardMaterial({color:0x654321}));
-sp.position.x=-0.2;g.add(sp);
 }
-g.position.set(x,1.1,z);g.userData.rot=1;g.userData.base=1.1;g.userData.decIdx=typ;scene.add(g);
+g.position.set(x,1.1,z);g.userData.decIdx=typ;scene.add(g);
 artifacts.push(g);
 }
 
 function run(){
 requestAnimationFrame(run);
-var s=0.1;
-if(keys.w){cam.position.x-=Math.sin(yaw)*s;cam.position.z-=Math.cos(yaw)*s}
-if(keys.s){cam.position.x+=Math.sin(yaw)*s;cam.position.z+=Math.cos(yaw)*s}
-if(keys.a){cam.position.x-=Math.cos(yaw)*s;cam.position.z+=Math.sin(yaw)*s}
-if(keys.d){cam.position.x+=Math.cos(yaw)*s;cam.position.z-=Math.sin(yaw)*s}
-cam.position.x=Math.max(-11,Math.min(3,cam.position.x));
-cam.position.z=Math.max(-58,Math.min(14,cam.position.z));
-cam.rotation.order='YXZ';cam.rotation.y=yaw;cam.rotation.x=pitch;
-rend.render(scene,cam);
+var s=0.1,sy=Math.sin(yaw),cy=Math.cos(yaw);
+if(keys.w){cam.position.x-=sy*s;cam.position.z-=cy*s}
+if(keys.s){cam.position.x+=sy*s;cam.position.z+=cy*s}
+if(keys.a){cam.position.x-=cy*s;cam.position.z+=sy*s}
+if(keys.d){cam.position.x+=cy*s;cam.position.z-=sy*s}
+cam.position.x=Math.max(-11,Math.min(3,cam.position.x));cam.position.z=Math.max(-58,Math.min(14,cam.position.z));
+cam.rotation.order='YXZ';cam.rotation.y=yaw;cam.rotation.x=pitch;rend.render(scene,cam);
 }
 
-document.addEventListener('keydown',e=>{
-if(e.key=='w'||e.key=='ArrowUp')keys.w=1;
-if(e.key=='s'||e.key=='ArrowDown')keys.s=1;
-if(e.key=='a'||e.key=='ArrowLeft')keys.a=1;
-if(e.key=='d'||e.key=='ArrowRight')keys.d=1;
-});
-document.addEventListener('keyup',e=>{
-if(e.key=='w'||e.key=='ArrowUp')keys.w=0;
-if(e.key=='s'||e.key=='ArrowDown')keys.s=0;
-if(e.key=='a'||e.key=='ArrowLeft')keys.a=0;
-if(e.key=='d'||e.key=='ArrowRight')keys.d=0;
-});
+var keyMap={'w':1,'ArrowUp':1,'s':1,'ArrowDown':1,'a':1,'ArrowLeft':1,'d':1,'ArrowRight':1};
+document.addEventListener('keydown',e=>{var k=e.key;if(keyMap[k])keys[k=='ArrowUp'?'w':k=='ArrowDown'?'s':k=='ArrowLeft'?'a':k=='ArrowRight'?'d':k]=1});
+document.addEventListener('keyup',e=>{var k=e.key;if(keyMap[k])keys[k=='ArrowUp'?'w':k=='ArrowDown'?'s':k=='ArrowLeft'?'a':k=='ArrowRight'?'d':k]=0});
 document.addEventListener('click',function(e){
 if(!started)return;
 if(scene){
-mouse.x=(e.clientX/innerWidth)*2-1;
-mouse.y=-(e.clientY/innerHeight)*2+1;
+mouse.x=(e.clientX/innerWidth)*2-1;mouse.y=-(e.clientY/innerHeight)*2+1;
 raycaster.setFromCamera(mouse,cam);
-var intersects=raycaster.intersectObjects(artifacts,true);
+var intersects=raycaster.intersectObjects(artifacts,true),obj;
 if(intersects.length>0){
-var obj=intersects[0].object;
-while(obj.parent&&!obj.userData.decIdx&&obj.userData.decIdx!==0){
-obj=obj.parent;
-}
-if(obj.userData.decIdx!==undefined&&!shown[obj.userData.decIdx]){
-shown[obj.userData.decIdx]=1;
-showDecision(obj.userData.decIdx);
-return;
-}
+obj=intersects[0].object;
+while(obj.parent&&obj.userData.decIdx===undefined)obj=obj.parent;
+if(obj.userData.decIdx!==undefined&&!shown[obj.userData.decIdx]){shown[obj.userData.decIdx]=1;showDecision(obj.userData.decIdx);return}
 }
 }
 document.body.requestPointerLock();
